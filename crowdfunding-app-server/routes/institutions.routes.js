@@ -11,7 +11,7 @@ const corsOptions = {
 };
 
 // POST Route for creating/ adding  a new institution
-router.post("/intitutions", cors(corsOptions), async (req, res, next) => {
+router.post("/institutions", cors(corsOptions), async (req, res, next) => {
     try{
         const{
             name,
@@ -59,10 +59,10 @@ router.get("/institutions", cors(corsOptions), async (req, res, next) => {
 });
 
 // GET Route to get one specific institution by id 
-router.get("/intitutions/:id", cors(corsOptions), async (req, res, next) => {
+router.get("/institutions/:id", cors(corsOptions), async (req, res, next) => {
     try {
         const { id } = req.params;
-        const cohort = await Institutions.findById(id);
+        const institutions = await Institutions.findById(id);
         if(!institutions){
             throw new Error ("error found")
         }

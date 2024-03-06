@@ -11,7 +11,7 @@ const corsOptions = {
 };
 
 
-// POST route to make a donation to an specific campaign 
+// POST route to make a donation to an specific campaign <<<- ROUTE NOT WORKING !
 router.post("/donations/campaign/:id", cors(corsOptions), async (req, res, next) => {
     const { amout, 
             date,  
@@ -50,6 +50,21 @@ router.get("/donations", cors(corsOptions), async (req, res, next) => {
         catch(error) {
             next(error);
         }
+});
+
+// GET Route to get all the donations from the DB by campaign 
+router.get("/donations/campaign/:id", cors(corsOptions), async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const donations = await Donations.find({campaign: id});
+        if(!donations){
+            throw new Error ("error found");
+        }
+        res.json(donations);
+    }
+    catch (error) {
+        next(error);
+    }
 });
 
 module.exports = router;

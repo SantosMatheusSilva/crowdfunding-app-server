@@ -10,12 +10,12 @@ const CampaignSchema = new Schema({
     /* currentAmount: { type: Number, default: 0 }, */ // <<<--- possibility to use virtual property for this!
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    images: { type: String, default: "" },
+    images: [{ type: String, default: "" }],
     status: { type: String, enum: ['active', 'completed', 'canceled'], default: 'active' }, // possibility to use virtual properties here.
     promoter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    donations: { type: mongoose.Schema.Types.ObjectId, ref: 'Donations' },
+    donations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Donations' }],
    });
    
 
-   const Campaing = mongoose.model("Campaing", CampaignSchema);
-   module.exports = Campaing;
+   const Campaign = mongoose.model("Campaign", CampaignSchema);
+   module.exports = Campaign;

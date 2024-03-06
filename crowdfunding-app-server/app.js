@@ -21,6 +21,21 @@ app.use("/api", indexRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
+const campaignsRoutes = require("./routes/campaign.routes");
+app.use("/api", campaignsRoutes);
+
+/* const commentRoutes = require("./routes/comment.routes");
+app.use("/api", commentRoutes); */
+
+const donationsRoutes = require("./routes/donations.routes");
+app.use("/api", donationsRoutes);
+
+const institutionsRoutes = require("./routes/institutions.routes");
+app.use("/api", institutionsRoutes);
+
+const userRoutes = require("./routes/user.routes");
+app.use("/api", userRoutes);
+
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 
