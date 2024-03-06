@@ -18,9 +18,21 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
+    profilePic: {
+      type: String,   /* include profile pictures or placeholders  - (user upload his own image)*/
+      default: "https://imgur.com/gallery/i9xknax",
+    },
+    donations: {
+      type: Schema.Types.ObjectId, /* Not sure if this property value needs to be an array */
+      ref: "Donations",
+    },
+    campaing: {
+      type: Schema.Types.ObjectId, /* Not sure if this property value needs to be an array */
+      ref: "Campaings",
+    },
   },
   {
-    // this second object adds extra properties: `createdAt` and `updatedAt`
+    // this second object adds extra properties: `createdAt` and `updatedAt` <<<--- ????
     timestamps: true,
   }
 );

@@ -7,13 +7,13 @@ const CampaignSchema = new Schema({
     cause: { type: String, required: true, enum: ['education', 'health', 'emergencies'] },
     description: { type: String, required: true },
     goalAmount: { type: Number, required: true },
-    currentAmount: { type: Number, default: 0 },
+    /* currentAmount: { type: Number, default: 0 }, */ // <<<--- possibility to use virtual property for this!
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     images: { type: String, default: "" },
-    status: { type: String, enum: ['active', 'completed', 'canceled'], default: 'active' },
+    status: { type: String, enum: ['active', 'completed', 'canceled'], default: 'active' }, // possibility to use virtual properties here.
     promoter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    donators: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    donations: { type: mongoose.Schema.Types.ObjectId, ref: 'Donations' },
    });
    
 
