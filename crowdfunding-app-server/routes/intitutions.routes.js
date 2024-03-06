@@ -10,7 +10,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// POST Route for creating a new institution
+// POST Route for creating/ adding  a new institution
 router.post("/intitutions", cors(corsOptions), async (req, res, next) => {
     try{
         const{

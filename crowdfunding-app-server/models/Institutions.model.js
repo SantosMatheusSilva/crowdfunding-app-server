@@ -14,5 +14,5 @@ const InstitutionSchema = new Schema({
     donors: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, */
 })
 
-const Institutions = mongoose.model("Campaing", CampaignSchema);
+const Institutions = mongoose.model("Institutions", InstitutionSchema);
 module.exports = Institutions;
