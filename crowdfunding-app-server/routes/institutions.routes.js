@@ -10,7 +10,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// POST Route for creating/ adding  a new institution
+// POST Route for creating/ adding  a new institution - STATUS = WORKING
 router.post("/institutions", cors(corsOptions), async (req, res, next) => {
     try{
         const{
@@ -20,7 +20,7 @@ router.post("/institutions", cors(corsOptions), async (req, res, next) => {
             address,
             phone,
             email,
-            image,
+            images,
             status
         } = req.body;
         const newInstitution = await Institutions.create({
@@ -30,7 +30,7 @@ router.post("/institutions", cors(corsOptions), async (req, res, next) => {
             address,
             phone,
             email,
-            image,
+            images,
             status
         });
         if(!newInstitution){
@@ -44,7 +44,7 @@ router.post("/institutions", cors(corsOptions), async (req, res, next) => {
 });
 
 
-// GET Route for getting all institutions
+// GET Route for getting all institutions - STATUS = WORKING
 router.get("/institutions", cors(corsOptions), async (req, res, next) => {
     try {
         const institutions = await Institutions.find();
@@ -58,7 +58,7 @@ router.get("/institutions", cors(corsOptions), async (req, res, next) => {
     }
 });
 
-// GET Route to get one specific institution by id 
+// GET Route to get one specific institution by id - STATUS = WORKING
 router.get("/institutions/:id", cors(corsOptions), async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -73,34 +73,50 @@ router.get("/institutions/:id", cors(corsOptions), async (req, res, next) => {
     }
 });
 
-// PUT Route to update an specifc institution by its id 
+// PUT Route to update an specifc institution by its id - STATUS = WORKING
 router.put("/institutions/:id", cors(corsOptions), async(req, res, next) => {
-    Institutions.findByIdAndUpdate(req.params.id, req.body, {new: true});
     try {
-        (updateInstitution) => {
-            if(!updateInstitution){
-                throw new Error ("error found");
-            }
-
-            res.json(updateInstitution);
-        };
-    }
-    catch(error) {
+        const { id } = req.params;
+        const { name,
+                type,
+                description,
+                address,
+                phone,
+                email,
+                images,
+                status} = req.body;
+        // The code bellow will check if any of the fields were left blank when updating
+        // If so, it will return an error message // Front-end - keep the update institution form value fields filled.
+        const isEmptyUpdate = Object.values(req.body).some(value => value === "" || value == null);
+        if (isEmptyUpdate) {
+            return res.status(400).json({ message: "One or more update fields are empty or undefined" });
+        }
+        const updatedInstitution = await Institutions.findByIdAndUpdate(id, { name, type, description, address, phone, email, images, status }, { new: true });
+        if (!updatedInstitution) {
+          throw new Error("Institution not found or not updated");
+        }
+        res.json({ message: "Institution updated", institution: updatedInstitution });
+      } catch (error) {
         next(error);
-    }
+      }
+
 });
 
 // DELETE Route to delete an institution by its id
 router.delete("/institutions/:id", cors(corsOptions), async(req, res, next) => {
-    Institutions.findByIdAndDelete(req.params.id);
-    try{
-        () => {
-        res.json({message: "Institution deleted"});
-        };
+    const { id } = req.params;
+    try {
+        const deletedInstitution = await Institutions.findByIdAndDelete(id);
+        if(!deletedInstitution){ {
+            throw new Error ("error found");
+        }
+        }
+        res.json({ message: "Institution deleted" /* institution: deletedInstitution */ });
     }
     catch(error) {
         next(error);
     }
 });
+
 
 module.exports = router;

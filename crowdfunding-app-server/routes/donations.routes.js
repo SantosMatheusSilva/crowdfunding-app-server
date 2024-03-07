@@ -2,6 +2,7 @@
 const router = require("express").Router();
 const Donations = require("../models/Donations.model");
 const cors = require("cors");
+const {isAuthenticated} = require("../middleware/jwt.middleware");
 
 
 // Define cors
@@ -11,21 +12,21 @@ const corsOptions = {
 };
 
 
-// POST route to make a donation to an specific campaign <<<- ROUTE NOT WORKING !
-router.post("/donations/campaign/:id", cors(corsOptions), async (req, res, next) => {
-    const { amout, 
+// POST route to make a donation to an specific campaign <<<- STATUS = WORKING !
+router.post("/campaign/:id/donations", isAuthenticated, cors(corsOptions), async (req, res, next) => {
+    const { amount, /* IF THIS IS SET TO FALSE THE ROUTE WORKS */
             date,  
             donor, 
             paymentMethod, 
-            Comments
+            comments
         } = req.body;
     try {
         const newDonation = await Donations.create({
-            amout,
+            amount,
             date,
             donor,
             paymentMethod,
-            Comments
+            comments
         })
         if(!newDonation) {
             throw new Error ("error found");
@@ -38,7 +39,7 @@ router.post("/donations/campaign/:id", cors(corsOptions), async (req, res, next)
     }
 } )
 
-// GET Route to get all the donations from the DB 
+// GET Route to get all the donations from the DB - STATUS = NOT WORKING
 router.get("/donations", cors(corsOptions), async (req, res, next) => {
     try {
         const donations = await Donations.find();
@@ -52,11 +53,11 @@ router.get("/donations", cors(corsOptions), async (req, res, next) => {
         }
 });
 
-// GET Route to get all the donations from the DB by campaign 
-router.get("/donations/campaign/:id", cors(corsOptions), async (req, res, next) => {
+// GET Route to get all the donations from the DB by campaign - STATUS = NOT WORKING
+/* router.get("/campaigns/:id/donations", cors(corsOptions), async (req, res, next) => {
     try {
         const { id } = req.params;
-        const donations = await Donations.find({campaign: id});
+        const donations = await Donations.find({campaign: id}).populate("donations");
         if(!donations){
             throw new Error ("error found");
         }
@@ -66,5 +67,5 @@ router.get("/donations/campaign/:id", cors(corsOptions), async (req, res, next) 
         next(error);
     }
 });
-
+ */
 module.exports = router;

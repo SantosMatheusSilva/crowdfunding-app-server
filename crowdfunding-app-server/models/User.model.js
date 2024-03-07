@@ -21,15 +21,8 @@ const userSchema = new Schema(
     profilePic: {
       type: String,   /* include profile pictures or placeholders  - (user upload his own image)*/
       default: "https://imgur.com/gallery/i9xknax",
-    },
-    donations: {
-      type: Schema.Types.ObjectId, /* Not sure if this property value needs to be an array */
-      ref: "Donations",
-    },
-    campaing: {
-      type: Schema.Types.ObjectId, /* Not sure if this property value needs to be an array */
-      ref: "Campaings",
-    },
+    }
+   
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt` <<<--- ????
@@ -40,3 +33,4 @@ const userSchema = new Schema(
 const User = model("User", userSchema);
 
 module.exports = User;
+

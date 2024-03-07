@@ -9,7 +9,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// POST Route to create a new campaign 
+// POST Route to create a new campaign - STATUS = checked, but the promoter value returns only the id.
 router.post("/campaign", cors(corsOptions), async (req, res, next) => {
     try {
         const {
@@ -20,7 +20,6 @@ router.post("/campaign", cors(corsOptions), async (req, res, next) => {
             startDate,
             endDate,
             images,
-            status,
             promoter, /* How to turn this property automatic to the user whos creating it ?? */
         } = req.body;
         const newCampaign = await  Campaign.create({
@@ -31,7 +30,6 @@ router.post("/campaign", cors(corsOptions), async (req, res, next) => {
             startDate,
             endDate,
             images,
-            status,
             promoter
         });
         if(!newCampaign){
@@ -46,7 +44,7 @@ router.post("/campaign", cors(corsOptions), async (req, res, next) => {
    
 });
 
-// GET Route to get all the campaigns
+// GET Route to get all the campaigns - STATUS = checked 
 router.get("/campaigns", cors(corsOptions), async (req, res, next) => {
     try {
         const campaign = await Campaign.find();
@@ -61,7 +59,7 @@ router.get("/campaigns", cors(corsOptions), async (req, res, next) => {
     }
 });
 
-// GET Route to get an specific campaign by its id
+// GET Route to get an specific campaign by its id - STATUS = checked
 router.get("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
     try {
         const {id} = req.params;
@@ -77,38 +75,62 @@ router.get("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
     }
 });
 
-// PUT Route to update an specifc campaign by its id 
-router.put("/campaigns/id", cors(corsOptions), async(req, res, next) => {
-    Campaign.findByIdAndUpdate(req.params.id, req.body, {new: true});
-    try{
-        (updateCampaign) => {
-            if(!updateCampaign) {
-                throw new Error("error found");
-            }
-
-            res.json(updateCampaign);
-        };
+// PUT Route to update an specifc campaign by its id - STATUS = checked
+router.put("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { title, goalAmount, endDate, images, status } = req.body;
+      // The code bellow will check if any of the fields were left blank when updating
+      // If so, it will return an error message // Front-end - keep the update campaign form value fields filled.
+      const isEmptyUpdate = Object.values(req.body).some(value => value === "" || value == null);
+      if (isEmptyUpdate) {
+          return res.status(400).json({ message: "One or more update fields are empty or undefined" });
+      }
+      const updatedCampaign = await Campaign.findByIdAndUpdate(
+        id,
+        { title, goalAmount, endDate, images, status },
+        { new: true }
+      );
+      if (!updatedCampaign) {
+        throw new Error("Campaign not found or not updated");
+      }
+      res.json({ message: "Campaign updated", campaign: updatedCampaign });
+    } catch (error) {
+      next(error);
     }
-    catch (error) {
-        next(error);
-    }
-});
+  });
 
 /*  GET Route to get the donations of an specific campaign by its id */
-// USe populate ??
+// USe populate - STATUS = checked
+router.get("/campaigns/:id/donations", cors(corsOptions), async(req, res) => {
+    try{
+        const {id} = req.params;
+        const campaign = await Campaign.findById(id).populate("donations");
+        if(!campaign) {
+            throw new Error ("error found");    
+        }
 
+        res.json(campaign);
+    }
+    catch(error) {
+        next(error);
+    }
+})
 
-// DELETE Route to delete an specific campaign by its id
+// DELETE Route to delete an specific campaign by its id - STATUS = checked
 router.delete("/campaigns/:id", cors(corsOptions), async(req, res, next) => {
-    Campaign.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
     try {
-        () => {
-            res.json({message: "Campaign deleted"});
-        };
+        const deletedCampaign = await Campaign.findByIdAndDelete(id);
+        if(!deletedCampaign) {
+            throw new Error ("error found");
+        }
+        res.json({ message: "Campaign deleted", /* campaign: deletedCampaign */ });
     }
     catch (error) {
         next(error);
     }
-});
+
+})
 
 module.exports = router;
