@@ -39,7 +39,7 @@ router.post("/campaign/:id/donations", isAuthenticated, cors(corsOptions), async
     }
 } )
 
-// GET Route to get all the donations from the DB - STATUS = NOT WORKING
+// GET Route to get all the donations from the DB - STATUS = WORKING - but dont retun the campaign id:
 router.get("/donations", cors(corsOptions), async (req, res, next) => {
     try {
         const donations = await Donations.find();
