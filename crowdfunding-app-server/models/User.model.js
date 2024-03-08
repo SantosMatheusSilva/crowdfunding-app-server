@@ -21,7 +21,9 @@ const userSchema = new Schema(
     profilePic: {
       type: String,   /* include profile pictures or placeholders  - (user upload his own image)*/
       default: "https://imgur.com/gallery/i9xknax",
-    }
+    },
+    campaigns: [{ type: Schema.Types.ObjectId, ref: "Campaign" }],
+    donations: [{ type: Schema.Types.ObjectId, ref: "Donations" }],
    
   },
   {

@@ -1,7 +1,9 @@
 // Necessary imports
+const User = require("../models/User.model");
 const router = require("express").Router();
 const Campaign = require("../models/Campaign.model");
 const cors = require("cors");
+const {isAuthenticated} = require("../middleware/jwt.middleware");
 
 // Define Cors
 const corsOptions = {
@@ -10,28 +12,37 @@ const corsOptions = {
 };
 
 // POST Route to create a new campaign - STATUS = checked, but the promoter value returns only the id.
-router.post("/campaign", cors(corsOptions), async (req, res, next) => {
+router.post("/user/:id/campaign", cors(corsOptions), isAuthenticated, async (req, res, next) => {
+
+    const {id} = req.params;
+    /* const {User} = req; */
+
     try {
         const {
             title,
             cause,
             description,
             goalAmount,
-            startDate,
+            /* startDate, */
             endDate,
             images,
-            promoter, /* How to turn this property automatic to the user whos creating it ?? */
+            /*  promoter, */  /* How to turn this property automatic to the user whos creating it ?? */
         } = req.body;
         const newCampaign = await  Campaign.create({
             title,
             cause,
             description,
             goalAmount,
-            startDate,
+            /* startDate, */
             endDate,
             images,
-            promoter
+            promoter: id
         });
+
+        await User.findByIdAndUpdate(id, {
+            $push: {campaigns: newCampaign}
+        }).populate("campaigns");
+
         if(!newCampaign){
             throw new Error("Error found");
         }
@@ -75,6 +86,7 @@ router.get("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
     }
 });
 
+// GET route to get 
 // PUT Route to update an specifc campaign by its id - STATUS = checked
 router.put("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
     try {
@@ -105,7 +117,7 @@ router.put("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
 router.get("/campaigns/:id/donations", cors(corsOptions), async(req, res) => {
     try{
         const {id} = req.params;
-        const campaign = await Campaign.findById(id).populate("donations");
+        const campaign = await Campaign.findById(id).populate("campaign");
         if(!campaign) {
             throw new Error ("error found");    
         }
