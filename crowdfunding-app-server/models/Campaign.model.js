@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const CampaignSchema = new Schema({
     title: { type: String, required: true },
+    campaignImage: { type: String, default: "" },
     cause: { type: String, required: true, enum: ['education', 'health', 'emergencies', 'dreams', 'others'] },
     description: { type: String, required: true },
     goalAmount: { type: Number, required: true },
@@ -12,7 +13,9 @@ const CampaignSchema = new Schema({
     endDate: { type: Date, required: true },
     images: [{ type: String, default: "" }],
     status: { type: String, enum: ['active', 'completed', 'canceled'], default: 'active' }, // possibility to use virtual properties here.
-    promoter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    promoter: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    promIntroduction: { type: String, default: '' },
+    budget: { type: String, default: "" },
     donations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Donations' }],
    });
    

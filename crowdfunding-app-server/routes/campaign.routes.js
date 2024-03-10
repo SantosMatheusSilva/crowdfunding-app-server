@@ -20,23 +20,29 @@ router.post("/user/:id/campaign", cors(corsOptions), isAuthenticated, async (req
     try {
         const {
             title,
+            campaignImage,
             cause,
             description,
             goalAmount,
             /* startDate, */
             endDate,
             images,
+            promIntroduction,
+            budget
             /*  promoter, */  /* How to turn this property automatic to the user whos creating it ?? */
         } = req.body;
         const newCampaign = await  Campaign.create({
             title,
+            campaignImage,
             cause,
             description,
             goalAmount,
             /* startDate, */
             endDate,
             images,
-            promoter: id
+            promoter: id,
+            promIntroduction,
+            budget
         });
 
         await User.findByIdAndUpdate(id, {
@@ -86,12 +92,11 @@ router.get("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
     }
 });
 
-// GET route to get 
 // PUT Route to update an specifc campaign by its id - STATUS = checked
-router.put("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
+router.put("/user/:id/campaigns/:id", cors(corsOptions), isAuthenticated,async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { title, goalAmount, endDate, images, status } = req.body;
+      const { title, goalAmount, endDate, campaignImage, status, budget } = req.body;
       // The code bellow will check if any of the fields were left blank when updating
       // If so, it will return an error message // Front-end - keep the update campaign form value fields filled.
       const isEmptyUpdate = Object.values(req.body).some(value => value === "" || value == null);
@@ -100,7 +105,7 @@ router.put("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
       }
       const updatedCampaign = await Campaign.findByIdAndUpdate(
         id,
-        { title, goalAmount, endDate, images, status },
+        { title, goalAmount, endDate, campaignImage, budget, status },
         { new: true }
       );
       if (!updatedCampaign) {
@@ -130,7 +135,7 @@ router.get("/campaigns/:id/donations", cors(corsOptions), async(req, res) => {
 })
 
 // DELETE Route to delete an specific campaign by its id - STATUS = checked
-router.delete("/campaigns/:id", cors(corsOptions), async(req, res, next) => {
+router.delete("/user/:id/campaigns/:id", cors(corsOptions), isAuthenticated, async(req, res, next) => {
     const { id } = req.params;
     try {
         const deletedCampaign = await Campaign.findByIdAndDelete(id);

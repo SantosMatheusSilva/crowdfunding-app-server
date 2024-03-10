@@ -3,7 +3,8 @@ const router = require("express").Router();
 const Donations = require("../models/Donations.model");
 const cors = require("cors");
 const {isAuthenticated} = require("../middleware/jwt.middleware");
-
+const Campaign = require("../models/Campaign.model");
+const User = require("../models/User.model");
 
 // Define cors
 const corsOptions = {
@@ -13,31 +14,40 @@ const corsOptions = {
 
 
 // POST route to make a donation to an specific campaign <<<- STATUS = WORKING !
-router.post("/campaign/:id/donations", isAuthenticated, cors(corsOptions), async (req, res, next) => {
+router.post("user/:id/campaign/:id/donations", isAuthenticated, cors(corsOptions), async (req, res, next) => {
+   const { id } = req.params;
+
+    try {
     const { amount, /* IF THIS IS SET TO FALSE THE ROUTE WORKS */
             date,  
             donor, 
             paymentMethod, 
             comments
         } = req.body;
-    try {
         const newDonation = await Donations.create({
             amount,
             date,
             donor,
             paymentMethod,
             comments
+        });
+        await Campaign.findByIdAndUpdate(id, {
+            $push: {donations: newDonation}
+        }).populate("donations");
+
+        await User.findByIdAndUpdate(donor, {
+            $push: {donations: newDonation}
         })
         if(!newDonation) {
             throw new Error ("error found");
         }
-
         res.json(newDonation);
     }
     catch (error) {
         next(error);
     }
 } )
+
 
 // GET Route to get all the donations from the DB - STATUS = WORKING - but dont retun the campaign id:
 router.get("/donations", cors(corsOptions), async (req, res, next) => {
