@@ -72,7 +72,9 @@ router.get("/campaigns", async (req, res, next) => {
 router.get("/campaigns/:id", async (req, res, next) => {
     try {
         const {id} = req.params;
-        const campaign = await Campaign.findById(id);
+        const campaign = await Campaign.findById(id)
+        .populate("donations")
+        .populate("promoter");
         if(!campaign) {
             throw new Error ("error found");
         }
@@ -114,7 +116,7 @@ router.put("/user/:id/campaigns/:id", async (req, res, next) => {
 router.get("/campaigns/:id/donations", async(req, res) => {
     try{
         const {id} = req.params;
-        const campaign = await Campaign.findById(id).populate("campaign");
+        const campaign = await Campaign.findById(id).populate("donations");
         if(!campaign) {
             throw new Error ("error found");    
         }

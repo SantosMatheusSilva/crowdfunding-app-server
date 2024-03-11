@@ -30,11 +30,11 @@ router.post("/user/:id/campaign/:id/donations", async (req, res) => {
         });
         await Campaign.findByIdAndUpdate(id, {
             $push: {donations: newDonation}
-        })
+        });
 
         await User.findByIdAndUpdate(id, {
             $push: {donations: newDonation}
-        })
+        }).populate("donations");
         res.json(newDonation);
     }
     catch (error) {
