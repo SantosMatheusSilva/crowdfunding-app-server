@@ -5,17 +5,13 @@ const Campaign = require("../models/Campaign.model");
 const cors = require("cors");
 const {isAuthenticated} = require("../middleware/jwt.middleware");
 
-// Define Cors
-const corsOptions = {
-    origin: ["http://localhost:5005"],
-    optionsSuccessStatus: 200
-};
-
 // POST Route to create a new campaign - STATUS = checked, but the promoter value returns only the id.
-router.post("/user/:id/campaign", cors(corsOptions), isAuthenticated, async (req, res, next) => {
+router.post("/user/:id/campaign", async (req, res, next) => {
 
     const {id} = req.params;
     /* const {User} = req; */
+
+    console.log('here');
 
     try {
         const {
@@ -29,9 +25,9 @@ router.post("/user/:id/campaign", cors(corsOptions), isAuthenticated, async (req
             images,
             promIntroduction,
             budget
-            /*  promoter, */  /* How to turn this property automatic to the user whos creating it ?? */
+            /*  promoter, */  
         } = req.body;
-        const newCampaign = await  Campaign.create({
+        const newCampaign = await Campaign.create({
             title,
             campaignImage,
             cause,
@@ -47,22 +43,18 @@ router.post("/user/:id/campaign", cors(corsOptions), isAuthenticated, async (req
 
         await User.findByIdAndUpdate(id, {
             $push: {campaigns: newCampaign}
-        }).populate("campaigns");
-
-        if(!newCampaign){
-            throw new Error("Error found");
-        }
+        })
 
         res.json(newCampaign);
     }
     catch (error) {
-        next(error);
+        return res.status(500).json({message: error.message})
     }
    
 });
 
 // GET Route to get all the campaigns - STATUS = checked 
-router.get("/campaigns", cors(corsOptions), async (req, res, next) => {
+router.get("/campaigns", async (req, res, next) => {
     try {
         const campaign = await Campaign.find();
         if(!campaign) {
@@ -77,7 +69,7 @@ router.get("/campaigns", cors(corsOptions), async (req, res, next) => {
 });
 
 // GET Route to get an specific campaign by its id - STATUS = checked
-router.get("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
+router.get("/campaigns/:id", async (req, res, next) => {
     try {
         const {id} = req.params;
         const campaign = await Campaign.findById(id);
@@ -93,7 +85,7 @@ router.get("/campaigns/:id", cors(corsOptions), async (req, res, next) => {
 });
 
 // PUT Route to update an specifc campaign by its id - STATUS = checked
-router.put("/user/:id/campaigns/:id", cors(corsOptions), isAuthenticated,async (req, res, next) => {
+router.put("/user/:id/campaigns/:id", async (req, res, next) => {
     try {
       const { id } = req.params;
       const { title, goalAmount, endDate, campaignImage, status, budget } = req.body;
@@ -119,7 +111,7 @@ router.put("/user/:id/campaigns/:id", cors(corsOptions), isAuthenticated,async (
 
 /*  GET Route to get the donations of an specific campaign by its id */
 // USe populate - STATUS = checked
-router.get("/campaigns/:id/donations", cors(corsOptions), async(req, res) => {
+router.get("/campaigns/:id/donations", async(req, res) => {
     try{
         const {id} = req.params;
         const campaign = await Campaign.findById(id).populate("campaign");
@@ -135,7 +127,7 @@ router.get("/campaigns/:id/donations", cors(corsOptions), async(req, res) => {
 })
 
 // DELETE Route to delete an specific campaign by its id - STATUS = checked
-router.delete("/user/:id/campaigns/:id", cors(corsOptions), isAuthenticated, async(req, res, next) => {
+router.delete("/user/:id/campaigns/:id", async(req, res, next) => {
     const { id } = req.params;
     try {
         const deletedCampaign = await Campaign.findByIdAndDelete(id);

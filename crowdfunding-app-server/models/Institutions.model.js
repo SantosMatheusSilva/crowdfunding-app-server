@@ -9,7 +9,7 @@ const InstitutionSchema = new Schema({
     phone: { type: String, required: true },
     email: { type: String, required: true },
     images: { type: String, required: true },
-    status: { type: String, enum: ['active', "deactivated"], default: 'active' },
+    status: { type: [String], enum: ['active', "deactivated"], default: 'active' },
     /* donations: { type: mongoose.Schema.Types.ObjectId, ref: 'Donations' }, // Check the logic to relate these schemas.
     donors: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, */
 })

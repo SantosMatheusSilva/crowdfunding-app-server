@@ -7,50 +7,44 @@ const Campaign = require("../models/Campaign.model");
 const User = require("../models/User.model");
 
 // Define cors
-const corsOptions = {
+/* const corsOptions = {
     origin: ["http://localhost:5005"],
     optionsSuccessStatus: 200
-};
+}; */
 
 
 // POST route to make a donation to an specific campaign <<<- STATUS = WORKING !
-router.post("user/:id/campaign/:id/donations", isAuthenticated, cors(corsOptions), async (req, res, next) => {
+router.post("/user/:id/campaign/:id/donations", async (req, res) => {
    const { id } = req.params;
 
     try {
-    const { amount, /* IF THIS IS SET TO FALSE THE ROUTE WORKS */
-            date,  
-            donor, 
+    const { 
+            amount,
             paymentMethod, 
             comments
         } = req.body;
         const newDonation = await Donations.create({
             amount,
-            date,
-            donor,
             paymentMethod,
             comments
         });
         await Campaign.findByIdAndUpdate(id, {
             $push: {donations: newDonation}
-        }).populate("donations");
+        })
 
-        await User.findByIdAndUpdate(donor, {
+        await User.findByIdAndUpdate(id, {
             $push: {donations: newDonation}
         })
-        if(!newDonation) {
-            throw new Error ("error found");
-        }
         res.json(newDonation);
     }
     catch (error) {
-        next(error);
+        return res.status(500).json({message: error.message});
     }
 } )
 
 
 // GET Route to get all the donations from the DB - STATUS = WORKING - but dont retun the campaign id:
-router.get("/donations", cors(corsOptions), async (req, res, next) => {
+router.get("/donations", async (req, res, next) => {
     try {
         const donations = await Donations.find();
         if(!donations){

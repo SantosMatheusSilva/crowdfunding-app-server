@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Associação de Mulheres Contra a Violência",
+        "type": "Non-profit",
+        "description": "Provides support and advocacy for women affected by violence.",
+        "address": "Rua da Atalaia 81, 1200-034 Lisboa",
+        "phone": "+351 21 343 1285",
+        "email": "info@amcv.org.pt",
+        "website": "https://www.amcv.org.pt/",
+        "images": "",
+        "status": "active",
+        "geolocation": [38.710078, -9.144145]
+    },
+    {
+        "name": "Refood",
+        "type": "Charity",
+        "description": "Works to eliminate food waste and hunger by redistributing surplus food to those in need.",
+        "address": "Avenida Miguel Bombarda 29, 1050-162 Lisboa",
+        "phone": "+351 91 062 3345",
+        "email": "lisboa@re-food.org",
+        "website": "https://re-food.org/",
+        "images": "",
+        "status": "active",
+        "geolocation": [38.724076, -9.152874]
+    },
+    {
+        "name": "Corações Com Coroa",
+        "type": "NGO",
+        "description": "Focuses on promoting human rights, gender equality, and social inclusion.",
+        "address": "Avenida Elias Garcia 77, 1050-102 Lisboa",
+        "phone": "+351 21 796 6057",
+        "email": "info@coracoescomcoroa.org",
+        "website": "https://www.coracoescomcoroa.org/",
+        "images": "",
+        "status": "active",
+        "geolocation": [38.742003, -9.156746]
+    },
+    {
+        "name": "Associação Portuguesa de Apoio à Vítima",
+        "type": "Non-profit",
+        "description": "Provides support and assistance to victims of crime.",
+        "address": "Rua Rodrigo da Fonseca 65, 1250-189 Lisboa",
+        "phone": "+351 21 358 7900",
+        "email": "apav.sede@apav.pt",
+        "website": "https://www.apav.pt/",
+        "images": "",
+        "status": "active",
+        "geolocation": [38.720776, -9.157349]
+    },
+    {
+        "name": "Fundação Calouste Gulbenkian",
+        "type": "Foundation",
+        "description": "Promotes arts, education, science, and charity, both in Portugal and internationally.",
+        "address": "Avenida de Berna 45A, 1067-001 Lisboa",
+        "phone": "+351 21 782 3000",
+        "email": "info@gulbenkian.pt",
+        "website": "https://www.gulbenkian.pt/",
+        "images": "",
+        "status": "active",
+        "geolocation": [38.739912, -9.154882]
+    }
+]
