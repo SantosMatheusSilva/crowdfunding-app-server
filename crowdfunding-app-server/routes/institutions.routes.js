@@ -102,6 +102,22 @@ router.put("/institutions/:id", cors(corsOptions), async(req, res, next) => {
 
 });
 
+// GET Route to get the donations of an specific institution by its id 
+router.get("/institutions/:id/donations", async(req, res) => {
+    try{
+        const {id} = req.params;
+        const institutions = await Institutions.findById(id).populate("donations");
+        if(!institutions) {
+            throw new Error ("error found");    
+        }
+
+        res.json(institutions);
+    }
+    catch(error) {
+        next(error);
+    }
+})
+
 // DELETE Route to delete an institution by its id
 router.delete("/institutions/:id", cors(corsOptions), async(req, res, next) => {
     const { id } = req.params;
