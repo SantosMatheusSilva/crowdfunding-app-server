@@ -32,6 +32,23 @@ catch(error){
 }  
 })
 
+// PUT route to update an specific user
+router.put("/user/:id", cors(corsOptions), isAuthenticated, async (req, res, next) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+    const user = await User.findByIdAndUpdate(id, { name, email, password });
+    // The code bellow will check if any of the fields were left blank when updating
+    const isEmptyUpdate = Object.values(req.body).some(value => value === "" || value == null);
+    if (isEmptyUpdate) {
+        return res.status(400).json({ message: "One or more update fields are empty or undefined" });
+    }
+    res.json(user);
+    try {if (!User){throw new Error ("error found");}}
+    catch(error){
+        next(error);
+    }
+})
+
 //GET route to the campaigns of an specific user 
 router.get("/user/:id/campaigns", cors(corsOptions), isAuthenticated, async (req, res, next) => {
     const { id } = req.params;
