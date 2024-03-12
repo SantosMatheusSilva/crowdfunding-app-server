@@ -144,4 +144,54 @@ router.delete("/user/:id/campaigns/:id", async(req, res, next) => {
 
 })
 
+// routes for the comments 
+router.post('campaigns/:id/comments', async(req, res, next) => {
+    const {id} = req.params;
+    try{
+        const { user ,comment} = req.body;
+        
+        // heere wee create a new comment in the campaign
+        const newComment = await Comment.create({
+            user,
+            comment,
+            campaign: id
+        })
+
+        // here we add comment to the campaign
+        await Campaign.findByIdAndUpdate(id, {
+            $push: {comments: newComment}
+        })
+        res.json(newComment);
+
+    }catch (error) {
+        next(error);
+    }
+})
+// get routes to  all  commeents for a speecific campaign 
+router.get('/campaigns/:id/comments',async (req, res, next)=>{
+    const {id } = req.params
+    try{
+        const comments = await Comment.find({ campaign: id }).populate('user');
+        res.json(comments);
+    }
+    catch (error) {
+        next(error);
+    }
+})
+
+//THIS IS THE DELETE ROUTE FOR A SPECIFIC ROUTTR
+router.delete('/campaigns/:id/comments/:id', async(req, res, next) => {
+    const { id } = req.params;
+    try {
+        const deletedComment = await Comment.findByIdAndDelete(id);
+        if(!deletedComment) {
+            throw new Error ("Comment not found");
+        }
+        res.json({ message: "Comment deleted", /* comment: deletedComment */ });
+    }
+    catch (error) {
+        next(error);
+    }
+})
+
 module.exports = router;
