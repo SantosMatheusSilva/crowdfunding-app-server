@@ -82,9 +82,12 @@ app.get('/config', (req, res)=>{
 // we already have set a hook to get the payment intent in the frontend, now we create the payment intent
 app.post('/create-payment-intent', async(req, res)=>{
     try{
+
+        const { amount } = req.body;
+
         const paymentIntent = await stripe.paymentIntent.create({
             currency: 'eur',
-            amount: 1999,
+            amount: amount,
             automatic_payment_methods:{
                 enabled: true
             }
