@@ -38,10 +38,6 @@ const userRoutes = require("./routes/user.routes");
 const { isAuthenticated } = require("./middleware/jwt.middleware");
 app.use("/api", userRoutes);
 
-app.get("/api/user/:id/campaign", isAuthenticated)
-
-app.get("/api/user/:id/campaign/:id/donations", isAuthenticated)
-
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 
@@ -61,9 +57,6 @@ const env = require('dotenv').config({path:'./.env'});  // use .env.test});
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-08-01'
 })
-
-app.use(express.static(process.env.STATIC_DIR))
-
 
 // this is the route where we gonna process the payment in our system.
 // once we click on donate, the user we be redirected to this route and will start the payment process
@@ -103,4 +96,5 @@ catch (error) {
     res.send({error})
 }
 })
+
 module.exports = app;
