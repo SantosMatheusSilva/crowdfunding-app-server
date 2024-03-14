@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const CampaignSchema = new Schema({
     title: { type: String, required: true },
     campaignImage: { type: String, default: "" },
-    cause: { type: [String], required: true, enum: ['Education', 'Health', 'Emergencies', 'Dreams', 'Others'] },
+    cause: { type: [String], required: true, enum: ['education', 'health', 'emergencies', 'dreams', 'others'] },
     description: { type: String, required: true },
     goalAmount: { type: Number, required: true },
     /* currentAmount: { type: Number, default: 0 }, */ // <<<--- possibility to use virtual property for this!
