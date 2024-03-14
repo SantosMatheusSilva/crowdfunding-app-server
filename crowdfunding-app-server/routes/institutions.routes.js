@@ -2,7 +2,7 @@
 const router = require("express").Router();
 const Institutions = require("../models/Institutions.model.js");
 const cors = require("cors");
-
+const Comment = require('../models/Comment.model.js');
 
 // Define cors 
 const corsOptions = {
@@ -23,22 +23,13 @@ router.post("/institutions", cors(corsOptions), async (req, res, next) => {
             images,
             status
         } = req.body;
-        const newInstitution = await Institutions.create({
-            name,
-            type,
-            description,
-            address,
-            phone,
-            email,
-            images,
-            status
-        });
-        if(!newInstitution){
-            throw new Error ("error found")
-        }
+        const newInstitution = await Institutions.create(req.body);
         res.json(newInstitution);
     }
     catch(error) {
+        if(error.code === 11000) {
+            res.status(409).json({message: "institution already exists"});
+        }
         next(error);
     }
 });
@@ -62,9 +53,11 @@ router.get("/institutions", cors(corsOptions), async (req, res, next) => {
 router.get("/institutions/:id", cors(corsOptions), async (req, res, next) => {
     try {
         const { id } = req.params;
-        const institutions = await Institutions.findById(id);
+        const institutions = await Institutions.findById(id)
+        .populate("donations") // populate the donation field with its related data from Donations collection
+        .populate({path: 'comments', populate:{ path:'user', model: 'User'}}); // populate  the comments field with its related user info from User
         if(!institutions){
-            throw new Error ("error found")
+            throw new Error ("Institution not found")
         }
         res.json(institutions);
     }
@@ -103,14 +96,17 @@ router.put("/institutions/:id", cors(corsOptions), async(req, res, next) => {
 });
 
 // GET Route to get the donations of an specific institution by its id 
-router.get("/institutions/:id/donations", async(req, res) => {
+router.get("/institutions/:id/donations", async(req, res, next) => {
+    const {id} = req.params;
     try{
-        const {id} = req.params;
-        const institutions = await Institutions.findById(id).populate("donations");
+        const institutions = await Institutions.findById(id)
+        .populate("donations")
+        .catch((error)=> {
+            next(error);
+        });
         if(!institutions) {
-            throw new Error ("error found");    
+            throw new Error ("Institution not found");
         }
-
         res.json(institutions);
     }
     catch(error) {
@@ -127,12 +123,82 @@ router.delete("/institutions/:id", cors(corsOptions), async(req, res, next) => {
             throw new Error ("error found");
         }
         }
-        res.json({ message: "Institution deleted" /* institution: deletedInstitution */ });
+        res.json({ message: "Institution deleted"  });
     }
     catch(error) {
         next(error);
     }
 });
+
+// GET route for the instituion/:id comments
+router.get("/institutions/:id/comments", async (req, res, next)=>{
+    const {id} = req.params
+    try{
+        const comments = await Comment.find({ institution: id }).populate('user');
+        res.json(comments);
+    }
+    catch (error) {
+        next(error);
+    }
+})
+
+// POST route for the instituion/:id comments
+router.post("/user/:userId/institutions/:institutionId/comments", async(req, res, next) => {
+    const {userId, institutionId} = req.params;
+    try{
+        const { user ,comment } = req.body;
+        
+        // heere wee create a new comment in the institution
+        const newComment = await Comment.create({
+            user: userId,
+            comment,
+            institution: institutionId, 
+        })
+
+        // here we add comment to the institution
+        await Institutions.findByIdAndUpdate(institutionId, {
+            $push: {comments: newComment}
+        }, { new: true });
+        // await Comment.findById(id).populate("user");
+        await newComment.populate("user");
+        res.json(newComment);
+        res.json(updatedInstitution);
+    }catch (error) {
+        next(error);
+    }
+})
+
+// DELETE  route for /institutions/:institutionId/comments/:commentId
+
+router.delete('/user/:userId/institutions/:institutionId/comments/:commentId', async(req, res, next) => {
+   
+    try {
+        if (!ObjectId.isValid(req.params.commentId)) {
+          return res.status(400).json({ message: 'Invalid commentId' });
+        }
+    
+        if (!ObjectId.isValid(req.params.userId)) {
+          return res.status(400).json({ message: 'Invalid userId' });
+        }
+    
+        const comment = await Comment.findById(req.params.commentId);
+    
+        if (!comment) {
+          return res.status(404).json({ message: 'Comment not found' });
+        }
+    
+        if (comment.user._id.toString() !== req.params.userId.toString()) {
+          return res.status(403).json({ message: 'Forbidden: You are not allowed to delete this comment' });
+        }
+    
+        await Comment.findByIdAndDelete(req.params.commentId);
+        res.json({ message: 'Comment deleted' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+      }
+});
+
 
 
 module.exports = router;

@@ -17,6 +17,7 @@ const CampaignSchema = new Schema({
     promIntroduction: { type: String, default: '' },
     budget: { type: String, default: "" },
     donations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Donations' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
    });
    
 

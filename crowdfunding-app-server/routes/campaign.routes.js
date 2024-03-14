@@ -2,8 +2,11 @@
 const User = require("../models/User.model");
 const router = require("express").Router();
 const Campaign = require("../models/Campaign.model");
+const Comment = require("../models/Comment.model");
 const cors = require("cors");
 const {isAuthenticated} = require("../middleware/jwt.middleware");
+const {ObjectId} = require("mongoose").Types;
+
 
 // POST Route to create a new campaign - STATUS = checked, but the promoter value returns only the id.
 router.post("/user/:id/campaign", async (req, res, next) => {
@@ -74,7 +77,12 @@ router.get("/campaigns/:id", async (req, res, next) => {
         const {id} = req.params;
         const campaign = await Campaign.findById(id)
         .populate("donations")
-        .populate("promoter");
+        .populate("promoter")
+        .populate({path: 'comments',
+        populate: {
+          path: 'user',
+          model: 'User'
+        } })
         if(!campaign) {
             throw new Error ("error found");
         }
@@ -87,9 +95,9 @@ router.get("/campaigns/:id", async (req, res, next) => {
 });
 
 // PUT Route to update an specifc campaign by its id - STATUS = checked
-router.put("/user/:id/campaigns/:id", async (req, res, next) => {
+router.put("/user/:userId/campaigns/:campaignId", async (req, res, next) => {
     try {
-      const { id } = req.params;
+      const { userId, campaignId } = req.params;
       const { title, goalAmount, endDate, campaignImage, status, budget } = req.body;
       // The code bellow will check if any of the fields were left blank when updating
       // If so, it will return an error message // Front-end - keep the update campaign form value fields filled.
@@ -98,7 +106,7 @@ router.put("/user/:id/campaigns/:id", async (req, res, next) => {
           return res.status(400).json({ message: "One or more update fields are empty or undefined" });
       }
       const updatedCampaign = await Campaign.findByIdAndUpdate(
-        id,
+        campaignId,
         { title, goalAmount, endDate, campaignImage, budget, status },
         { new: true }
       );
@@ -116,7 +124,12 @@ router.put("/user/:id/campaigns/:id", async (req, res, next) => {
 router.get("/campaigns/:id/donations", async(req, res) => {
     try{
         const {id} = req.params;
-        const campaign = await Campaign.findById(id).populate("donations");
+        const campaign = await Campaign.findById(id)
+        .populate({path: "donations"
+        , populate: {
+            path:"donor",
+            model: "User"
+        }});
         if(!campaign) {
             throw new Error ("error found");    
         }
@@ -129,10 +142,10 @@ router.get("/campaigns/:id/donations", async(req, res) => {
 })
 
 // DELETE Route to delete an specific campaign by its id - STATUS = checked
-router.delete("/user/:id/campaigns/:id", async(req, res, next) => {
-    const { id } = req.params;
+router.delete("/user/:userId/campaigns/:campaignId", async(req, res, next) => {
+    const { userId, campaignId } = req.params;
     try {
-        const deletedCampaign = await Campaign.findByIdAndDelete(id);
+        const deletedCampaign = await Campaign.findByIdAndDelete(campaignId);
         if(!deletedCampaign) {
             throw new Error ("error found");
         }
@@ -145,31 +158,33 @@ router.delete("/user/:id/campaigns/:id", async(req, res, next) => {
 })
 
 // routes for the comments 
-router.post('campaigns/:id/comments', async(req, res, next) => {
-    const {id} = req.params;
+router.post("/user/:userId/campaigns/:campaignId/comments", async(req, res, next) => {
+    const {userId, campaignId} = req.params;
     try{
-        const { user ,comment} = req.body;
+        const { user ,comment } = req.body;
         
         // heere wee create a new comment in the campaign
         const newComment = await Comment.create({
-            user,
+            user: userId,
             comment,
-            campaign: id
+            campaign: campaignId, 
         })
 
         // here we add comment to the campaign
-        await Campaign.findByIdAndUpdate(id, {
+        await Campaign.findByIdAndUpdate(campaignId, {
             $push: {comments: newComment}
-        })
+        }, { new: true });
+        // await Comment.findById(id).populate("user");
+        await newComment.populate("user");
         res.json(newComment);
-
+        res.json(updatedCampaign);
     }catch (error) {
         next(error);
     }
 })
 // get routes to  all  commeents for a speecific campaign 
 router.get('/campaigns/:id/comments',async (req, res, next)=>{
-    const {id } = req.params
+    const {id} = req.params
     try{
         const comments = await Comment.find({ campaign: id }).populate('user');
         res.json(comments);
@@ -179,19 +194,56 @@ router.get('/campaigns/:id/comments',async (req, res, next)=>{
     }
 })
 
+
+
 //THIS IS THE DELETE ROUTE FOR A SPECIFIC ROUTTR
-router.delete('/campaigns/:id/comments/:id', async(req, res, next) => {
-    const { id } = req.params;
+router.delete('/user/:userId/campaigns/:campaignId/comments/:commentId', async(req, res, next) => {
+    //const { campaignId, commentId } = req.params;
+    //Comment.findByIdAndDelete(req.params.commentId)
     try {
-        const deletedComment = await Comment.findByIdAndDelete(id);
+        if (!ObjectId.isValid(req.params.commentId)) {
+          return res.status(400).json({ message: 'Invalid commentId' });
+        }
+    
+        if (!ObjectId.isValid(req.params.userId)) {
+          return res.status(400).json({ message: 'Invalid userId' });
+        }
+    
+        const comment = await Comment.findById(req.params.commentId);
+    
+        if (!comment) {
+          return res.status(404).json({ message: 'Comment not found' });
+        }
+    
+        if (comment.user._id.toString() !== req.params.userId.toString()) {
+          return res.status(403).json({ message: 'Forbidden: You are not allowed to delete this comment' });
+        }
+    
+        await Comment.findByIdAndDelete(req.params.commentId);
+        res.json({ message: 'Comment deleted' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+      }
+});
+
+module.exports = router;
+/* 
+
+    try /* {
+        const deletedComment = await Comment.findByIdAndDelete(commentId);
         if(!deletedComment) {
             throw new Error ("Comment not found");
         }
-        res.json({ message: "Comment deleted", /* comment: deletedComment */ });
+        res.json({ message: "Comment deleted",  });
+    } */
+    /*{
+        () => {
+            res.send()
+        }
     }
     catch (error) {
         next(error);
     }
 })
-
-module.exports = router;
+*/
