@@ -1,3 +1,5 @@
+// this is the logic for the stripe payment method in the server 
+
 const express = require('express');
 const app = express();
 const { resolve} = require('path');
