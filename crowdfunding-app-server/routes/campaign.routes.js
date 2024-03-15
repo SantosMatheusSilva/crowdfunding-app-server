@@ -11,7 +11,7 @@ const {ObjectId} = require("mongoose").Types;
 // POST Route to create a new campaign - STATUS = checked, but the promoter value returns only the id.
 router.post("/user/:id/campaign", async (req, res, next) => {
 
-    const {userId} = req.params;
+    const {id} = req.params;
     /* const {User} = req; */
 
     console.log('here');
