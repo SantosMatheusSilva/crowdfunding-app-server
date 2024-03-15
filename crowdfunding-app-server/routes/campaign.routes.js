@@ -11,7 +11,7 @@ const {ObjectId} = require("mongoose").Types;
 // POST Route to create a new campaign - STATUS = checked, but the promoter value returns only the id.
 router.post("/user/:id/campaign", async (req, res, next) => {
 
-    const {id} = req.params;
+    const {userId} = req.params;
     /* const {User} = req; */
 
     console.log('here');
@@ -72,7 +72,7 @@ router.get("/campaigns", async (req, res, next) => {
 });
 
 // GET Route to get an specific campaign by its id - STATUS = checked
-router.get("/campaigns/:id", async (req, res, next) => {
+router.get("/campaigns/:userId", async (req, res, next) => {
     try {
         const {id} = req.params;
         const campaign = await Campaign.findById(id)
@@ -95,7 +95,7 @@ router.get("/campaigns/:id", async (req, res, next) => {
 });
 
 // PUT Route to update an specifc campaign by its id - STATUS = checked
-router.put("/user/:id/campaigns/:campaignId", async (req, res, next) => {
+router.put("/user/:userId/campaigns/:campaignId", async (req, res, next) => {
     try {
       const { userId, campaignId } = req.params;
       const { title, goalAmount, endDate, campaignImage, status, budget } = req.body;
@@ -121,7 +121,7 @@ router.put("/user/:id/campaigns/:campaignId", async (req, res, next) => {
 
 /*  GET Route to get the donations of an specific campaign by its id */
 // USe populate - STATUS = checked
-router.get("/campaigns/:id/donations", async(req, res) => {
+router.get("/campaigns/:userId/donations", async(req, res) => {
     try{
         const {id} = req.params;
         const campaign = await Campaign.findById(id)
@@ -142,7 +142,7 @@ router.get("/campaigns/:id/donations", async(req, res) => {
 })
 
 // DELETE Route to delete an specific campaign by its id - STATUS = checked
-router.delete("/user/:id/campaigns/:campaignId", async(req, res, next) => {
+router.delete("/user/:userId/campaigns/:campaignId", async(req, res, next) => {
     const { userId, campaignId } = req.params;
     try {
         const deletedCampaign = await Campaign.findByIdAndDelete(campaignId);
@@ -158,7 +158,7 @@ router.delete("/user/:id/campaigns/:campaignId", async(req, res, next) => {
 })
 
 // routes for the comments 
-router.post("/user/:id/campaigns/:campaignId/comments", async(req, res, next) => {
+router.post("/user/:userId/campaigns/:campaignId/comments", async(req, res, next) => {
     const {userId, campaignId} = req.params;
     try{
         const { user ,comment } = req.body;
@@ -183,7 +183,7 @@ router.post("/user/:id/campaigns/:campaignId/comments", async(req, res, next) =>
     }
 })
 // get routes to  all  commeents for a speecific campaign 
-router.get('/campaigns/:id/comments',async (req, res, next)=>{
+router.get('/campaigns/:userId/comments',async (req, res, next)=>{
     const {id} = req.params
     try{
         const comments = await Comment.find({ campaign: id }).populate('user');
@@ -197,7 +197,7 @@ router.get('/campaigns/:id/comments',async (req, res, next)=>{
 
 
 //THIS IS THE DELETE ROUTE FOR A SPECIFIC ROUTTR
-router.delete('/user/:id/campaigns/:campaignId/comments/:commentId', async(req, res, next) => {
+router.delete('/user/:userId/campaigns/:campaignId/comments/:commentId', async(req, res, next) => {
     //const { campaignId, commentId } = req.params;
     //Comment.findByIdAndDelete(req.params.commentId)
     try {
