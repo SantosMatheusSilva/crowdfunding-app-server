@@ -3,6 +3,7 @@ const router = require("express").Router();
 const Institutions = require("../models/Institutions.model.js");
 const cors = require("cors");
 const Comment = require('../models/Comment.model.js');
+const Donations = require("../models/Donations.model.js");
 
 // Define cors 
 const corsOptions = {
@@ -50,11 +51,11 @@ router.get("/institutions", cors(corsOptions), async (req, res, next) => {
 });
 
 // GET Route to get one specific institution by id - STATUS = WORKING
-router.get("/institutions/:id", cors(corsOptions), async (req, res, next) => {
+router.get("/institutions/:institutionId", cors(corsOptions), async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const institutions = await Institutions.findById(id)
-        .populate("donations") // populate the donation field with its related data from Donations collection
+        const {institutionId} = req.params;
+        const institutions = await Institutions.findById(institutionId)
+        .populate({path: "donations", populate:{ path: 'donations', model: 'Donations'}}) // populate the donation field with its related data from Donations collection
         .populate({path: 'comments', populate:{ path:'user', model: 'User'}}); // populate  the comments field with its related user info from User
         if(!institutions){
             throw new Error ("Institution not found")
@@ -69,7 +70,7 @@ router.get("/institutions/:id", cors(corsOptions), async (req, res, next) => {
 // PUT Route to update an specifc institution by its id - STATUS = WORKING
 router.put("/institutions/:id", cors(corsOptions), async(req, res, next) => {
     try {
-        const { id } = req.params;
+        const {id} = req.params;
         const { name,
                 type,
                 description,
@@ -116,7 +117,7 @@ router.get("/institutions/:id/donations", async(req, res, next) => {
 
 // DELETE Route to delete an institution by its id
 router.delete("/institutions/:id", cors(corsOptions), async(req, res, next) => {
-    const { id } = req.params;
+    const {id} = req.params;
     try {
         const deletedInstitution = await Institutions.findByIdAndDelete(id);
         if(!deletedInstitution){ {
@@ -146,7 +147,7 @@ router.get("/institutions/:id/comments", async (req, res, next)=>{
 router.post("/user/:userId/institutions/:institutionId/comments", async(req, res, next) => {
     const {userId, institutionId} = req.params;
     try{
-        const { user ,comment } = req.body;
+        const {user ,comment} = req.body;
         
         // heere wee create a new comment in the institution
         const newComment = await Comment.create({
