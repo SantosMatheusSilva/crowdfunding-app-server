@@ -32,6 +32,26 @@ const userSchema = new Schema(
   }
 );
 
+userSchema.virtual('totalDonation', {
+  ref: 'Donations', // Modelo referenciado
+  localField: '_id', // Campo local no modelo User
+  foreignField: 'user', // Campo na doação que se refere ao usuário
+  justOne: false, // Se é um ou mais registros
+  /* options: { 
+      match: { status: 'completed' } // Filtra as doações com status 'completed'
+  }, */
+  // Define uma função para calcular o valor total de doações
+  get: function() {
+    console.log('this.donations:', this.donations);
+    if (!this.donations) {
+        return 0;
+    }
+    const total = this.donations.reduce((acc, donation) => acc + donation.amount, 0);
+    console.log('Total donation amount:', total);
+    return total;
+}
+});
+
 const User = model("User", userSchema);
 
 module.exports = User;
