@@ -25,8 +25,8 @@ app.use("/auth", authRoutes);
 const campaignsRoutes = require("./routes/campaign.routes");
 app.use("/api", campaignsRoutes);
 
-/* const commentRoutes = require("./routes/comment.routes");
-app.use("/api", commentRoutes); */
+const commentsRoutes = require("./routes/comments.routes");
+app.use("/api", commentsRoutes); 
 
 const donationsRoutes = require("./routes/donations.routes");
 app.use("/api", donationsRoutes);
@@ -36,10 +36,18 @@ app.use("/api", institutionsRoutes);
 
 const userRoutes = require("./routes/user.routes");
 const { isAuthenticated } = require("./middleware/jwt.middleware");
+
+app.get("/api/user/:id", isAuthenticated)
+
 app.use("/api", userRoutes);
+
+app.get("/api/user/:id/campaign", isAuthenticated)
+
+app.get("/api/user/:id/campaign/:id/donations", isAuthenticated)
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
+
 
 
 
@@ -48,15 +56,18 @@ require("./error-handling")(app);
 
 // this is the logic for the stripe payment method in the server 
 
-const { resolve} = require('path');
+/* const { resolve} = require('path'); */
 
-// this code will replace if using a different env file or config
+/* // this code will replace if using a different env file or config
 const env = require('dotenv').config({path:'./.env'});  // use .env.test});
 
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-08-01'
 })
+
+app.use(express.static(process.env.STATIC_DIR))
+
 
 // this is the route where we gonna process the payment in our system.
 // once we click on donate, the user we be redirected to this route and will start the payment process
@@ -75,16 +86,14 @@ app.get('/config', (req, res)=>{
     res.send({
         publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     })
-})
+}) */
 
 
 // this route sends a post request for payment-intent to stripe
 // we already have set a hook to get the payment intent in the frontend, now we create the payment intent
-app.post('/create-payment-intent', async(req, res)=>{
+/* app.post('/create-payment-intent', async(req, res)=>{
     try{
-
-        const { amount } = req.body;
-
+        const { amount } = req.params;
         const paymentIntent = await stripe.paymentIntent.create({
             currency: 'eur',
             amount: amount,
@@ -98,6 +107,15 @@ catch (error) {
     console.log(error)
     res.send({error})
 }
-})
+}) */
+
+//cloudinary
+const cloudinary = require('./utils/cloudinary.js');
+app.use = (cloudinary);
+
+// File uploads
+const fileUpload = require('express-fileupload');
+app.use = (fileUpload());
+
 
 module.exports = app;
