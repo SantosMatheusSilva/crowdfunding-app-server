@@ -18,10 +18,10 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, profilePic } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === "") {
+  if (email === "" || password === "" || name === "" ) {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
@@ -43,6 +43,14 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
+  // Check if profilePic is provided and upload it if it exists
+  if (profilePic) {
+    const profilePicOptions = { tags: ['user_profile_pic', 'user_id_123'] };
+    const result = uploadFile(profilePic, profilePicOptions);
+    profilePic = result.secure_url;
+  }
+
+
   // Check the users collection if a user with the same email already exists
   User.findOne({ email })
     .then((foundUser) => {
@@ -58,15 +66,15 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name });
+      return User.create({ email, password: hashedPassword, name, profilePic });
     })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, name, _id } = createdUser;
+      const { email, name, _id, profilePic } = createdUser;
 
       // Create a new object that doesn't expose the password
-      const user = { email, name, _id };
+      const user = { email, name, _id, profilePic };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
@@ -76,7 +84,7 @@ router.post("/signup", (req, res, next) => {
 
 // POST  /auth/login - Verifies email and password and returns a JWT
 router.post("/login", (req, res, next) => {
-  const { email, password } = req.body;
+  const {email, password} = req.body;
 
   // Check if email or password are provided as empty string
   if (email === "" || password === "") {
@@ -98,10 +106,10 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundUser;
+        const { _id, email, name, profilePic } = foundUser;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email, name, profilePic};
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -127,5 +135,44 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
 });
+
+
+// PUT /auth/profile - To update user profile data
+router.put("/profile",/*  isAuthenticated, */ (req, res, next) => {
+  const {email, name, profilePic, confirmPassword} = req.body;
+
+  // Check if email or password are provided as empty string
+  /* if (email === "" || name === "") {
+    res.status(400).json({ message: "Provide email, password and name." });
+    return;
+  }  */
+
+  // This regular expression check that the email is of a valid format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!emailRegex.test(email)) {
+    res.status(400).json({ message: "Provide a valid email address." });
+    return;
+  }
+
+   // Update the user in the database
+  User.findOneAndUpdate(
+    { email },
+    { email, name, profilePic },
+    { new: true} 
+  )
+    .then((updatedUser) => {
+      // Omit the password from the user object
+      const { email, name, _id, profilePic } = updatedUser;
+
+      // Create a new object that doesn't expose the password
+      const user = { email, name, _id, profilePic };
+
+      // Send a JSON response containing the user object
+      res.status(201).json({ user });
+    })
+    .catch((err) => next(err));
+});
+
+
 
 module.exports = router;
