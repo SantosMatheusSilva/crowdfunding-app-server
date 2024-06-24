@@ -110,8 +110,8 @@ catch (error) {
 }) */
 
 //cloudinary
-const cloudinary = require('./utils/cloudinary.js');
-app.use = (cloudinary);
+//const cloudinary = require('./utils/cloudinary.js');
+//app.use = (cloudinary);
 
 // File uploads
 const fileUpload = require('express-fileupload');
