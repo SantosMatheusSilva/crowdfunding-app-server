@@ -25,7 +25,9 @@ const MONGO_URI = process.env.MONGODB_URI;
       version: ServerApiVersion.v1,
       strict: true,
       deprecationErrors: true,
-    }
+    },
+    connectTimeoutMS: 30000,  // 30 seconds for connection timeout
+    serverSelectionTimeoutMS: 50000 // 50 seconds for server selection timeout
   });
   async function run() {
     try {
