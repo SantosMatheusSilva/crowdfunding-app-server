@@ -20,7 +20,7 @@ const MONGO_URI = process.env.MONGODB_URI;
 
   console.log('mongoDb URI', process.env.MONGODB_URI); */
   
-  const client = new MongoClient(uri, {
+  const client = new MongoClient(MONGO_URI, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
