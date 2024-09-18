@@ -1,12 +1,62 @@
 // ℹ️ package responsible to make the connection with mongodb
 // https://www.npmjs.com/package/mongoose
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const mongoose = require("mongoose");
+//const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
+const mongoose = require("mongoose");
 
-// ℹ️ Sets the MongoDB URI for our app to have access to it.
-// If no env has been set, we dynamically set it to whatever the folder name was upon the creation of the app
 
+// connect to mongo db
+
+const connectWithRetry = () => {
+  console.log('Attempting to connect to MongoDB...');
+  mongoose.connect(process.env.MONGODB_URI, {
+    //useNewUrlParser: true,
+    //useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('Connected to MongoDB successfully');
+  })
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB. Retrying in 5 seconds...', err);
+    setTimeout(connectWithRetry, 5000);  // Retry after 5 seconds
+  });
+};
+
+// Call the function to establish the connection
+connectWithRetry();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
 const MONGO_URI = process.env.MONGODB_URI;
  mongoose
   .connect(MONGO_URI)
@@ -18,7 +68,7 @@ const MONGO_URI = process.env.MONGODB_URI;
     console.error("Error connecting to mongo: ", err);
   });
 
-  console.log('mongoDb URI', process.env.MONGODB_URI); 
+  console.log('mongoDb URI', process.env.MONGODB_URI);  */
   
   /* const client = new MongoClient(MONGO_URI, {
     serverApi: {
@@ -41,4 +91,4 @@ const MONGO_URI = process.env.MONGODB_URI;
       await client.close();
     }
   } */
-  run().catch(console.dir);
+  //run().catch(console.dir);
