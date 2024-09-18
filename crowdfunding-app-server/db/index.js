@@ -8,7 +8,7 @@ require('dotenv').config();
 // If no env has been set, we dynamically set it to whatever the folder name was upon the creation of the app
 
 const MONGO_URI = process.env.MONGODB_URI;
-/* mongoose
+ mongoose
   .connect(MONGO_URI)
   .then((x) => {
     const dbName = x.connections[0].name;
@@ -18,9 +18,9 @@ const MONGO_URI = process.env.MONGODB_URI;
     console.error("Error connecting to mongo: ", err);
   });
 
-  console.log('mongoDb URI', process.env.MONGODB_URI); */
+  console.log('mongoDb URI', process.env.MONGODB_URI); 
   
-  const client = new MongoClient(MONGO_URI, {
+  /* const client = new MongoClient(MONGO_URI, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
@@ -40,5 +40,5 @@ const MONGO_URI = process.env.MONGODB_URI;
       // Ensures that the client will close when you finish/error
       await client.close();
     }
-  }
+  } */
   run().catch(console.dir);
